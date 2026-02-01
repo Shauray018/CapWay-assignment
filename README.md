@@ -42,6 +42,6 @@ npm run dev
 ```
 Create .env:
 ```bash
-MONGODB_URI=your-mongoDB-uri
+MONGODB_URI=
 JWT_SECRET=some-secret
 ```
