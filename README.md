@@ -8,7 +8,6 @@ Full-stack app built with **Next.js (frontend)** and **Node.js + Express (backen
 
 - Frontend: https://cap-way-assignment.vercel.app/
 - Backend: https://capway-assignment-production.up.railway.app
-- API Base URL: https://capway-assignment-production.up.railway.app/api
 
 
 ---
