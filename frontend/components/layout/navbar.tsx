@@ -3,16 +3,26 @@
 import { useState } from 'react';
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { UsersRound, MapPin, ShoppingCart } from "lucide-react";
+import { UsersRound, MapPin, ShoppingCart, User, LogOut } from "lucide-react";
 import { useCartStore } from '@/store/cartStore';
 import { useFilterStore } from '@/store/filterStore';
 import CartSheet from '../cart/cartSheet';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
+import { toast } from 'sonner';
 
 export default function NavBar() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const getTotalItems = useCartStore((state) => state.getTotalItems);
     const { searchQuery, setSearchQuery } = useFilterStore();
-    
+    const { user, isAuthenticated, logout } = useAuthStore();
+    const router = useRouter(); 
+
+    const handleLogout = () => {
+        logout();
+        toast.success('Logged out successfully');
+        router.push('/login');
+    };
     const cartItemCount = getTotalItems();
 
     return (
@@ -58,10 +68,17 @@ export default function NavBar() {
                         <span className="text-sm font-medium">Cart</span>
                     </button>
                     
-                    <Button className="bg-white text-xs px-6 py-2 text-black border border-pink-700 rounded-full hover:bg-pink-50">
-                        <UsersRound size={16} />
-                        Login
-                    </Button>
+                    {isAuthenticated && user ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+            ) : null}
                 </div>
             </div>
 

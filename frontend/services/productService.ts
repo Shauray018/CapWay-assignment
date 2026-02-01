@@ -1,6 +1,7 @@
 import { Product, ProductsResponse } from '@/types/product';
 
-const API_BASE_URL = 'https://capway-assignment-production.up.railway.app/api';
+const API_URL = process.env.API_BASE_URL || "https://capway-assignment-production.up.railway.app/api"
+
 
 export const productService = {
   // Get all products with optional filters
@@ -20,7 +21,7 @@ export const productService = {
       if (params?.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
       if (params?.inStock) queryParams.append('inStock', 'true');
 
-      const url = `${API_BASE_URL}/products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `${API_URL}/products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       
       const response = await fetch(url);
       
@@ -39,7 +40,7 @@ export const productService = {
   // Get single product by ID
   async getProductById(id: string): Promise<Product> {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/${id}`);
+      const response = await fetch(`${API_URL}/products/${id}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch product');
