@@ -4,6 +4,7 @@ import { useCartStore } from '@/store/cartStore';
 import { Button } from '../ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -11,17 +12,32 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const addToCart = useCartStore((state) => state.addToCart);
+  const initializeStock = useCartStore((state) => state.initializeStock);
+  const getProductStock = useCartStore((state) => state.getProductStock);
+  const items = useCartStore((state) => state.items);
+  
+  // Initialize stock when component mounts
+  useEffect(() => {
+    initializeStock(product._id, product.stockLeft);
+  }, [product._id, product.stockLeft, initializeStock]);
 
-  const discountPercentage = Math.round(
-    ((product.originalPrice - product.salePrice) / product.originalPrice) * 100
-  );
+  const availableStock = getProductStock(product._id) || product.stockLeft;
+  const itemInCart = items.find(item => item._id === product._id);
+  const quantityInCart = itemInCart?.quantity || 0;
 
   const handleAddToCart = () => {
+    if (availableStock <= 0) {
+      toast.error('Out of stock!');
+      return;
+    }
+
     addToCart(product);
     toast.success(`${product.name} added to cart!`, {
-      description: `$${product.salePrice.toFixed(2)}`,
+      description: `$${product.salePrice.toFixed(2)} • ${quantityInCart + 1} in cart`,
     });
   };
+
+  const isOutOfStock = availableStock <= 0;
 
   return (
     <div className="bg-pink-50 rounded-2xl p-6 hover:shadow-lg transition-shadow">
@@ -32,6 +48,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           fill
           className="object-contain"
         />
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">Out of Stock</span>
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">
@@ -50,18 +71,25 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-pink-600 text-sm font-medium">
-            {product.stockLeft} Left
+          <span className={`text-sm font-medium ${
+            isOutOfStock ? 'text-red-600' : 'text-pink-600'
+          }`}>
+            {availableStock} Left
           </span>
+          {quantityInCart > 0 && (
+            <span className="text-xs text-gray-500">
+              {quantityInCart} in cart
+            </span>
+          )}
         </div>
 
         <Button
           onClick={handleAddToCart}
-          className="w-full bg-pink-700 hover:bg-pink-800 text-white"
-          disabled={product.stockLeft === 0}
+          className="w-full bg-pink-700 hover:bg-pink-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isOutOfStock}
         >
           <ShoppingCart size={16} />
-          Add to Cart
+          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
         </Button>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { UsersRound, MapPin, ShoppingCart, User, LogOut } from "lucide-react";
+import { MapPin, ShoppingCart, LogOut } from "lucide-react";
 import { useCartStore } from '@/store/cartStore';
 import { useFilterStore } from '@/store/filterStore';
 import CartSheet from '../cart/cartSheet';
@@ -13,7 +13,11 @@ import { toast } from 'sonner';
 
 export default function NavBar() {
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const getTotalItems = useCartStore((state) => state.getTotalItems);
+    
+    // Subscribe to items directly instead of using getTotalItems()
+    const items = useCartStore((state) => state.items);
+    const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
+    
     const { searchQuery, setSearchQuery } = useFilterStore();
     const { user, isAuthenticated, logout } = useAuthStore();
     const router = useRouter(); 
@@ -23,7 +27,6 @@ export default function NavBar() {
         toast.success('Logged out successfully');
         router.push('/login');
     };
-    const cartItemCount = getTotalItems();
 
     return (
         <>
@@ -69,16 +72,16 @@ export default function NavBar() {
                     </button>
                     
                     {isAuthenticated && user ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
-            ) : null}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleLogout}
+                          className="gap-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Logout
+                        </Button>
+                    ) : null}
                 </div>
             </div>
 
