@@ -58,7 +58,7 @@ export default function NavBar() {
                         <span className="text-sm font-medium">Cart</span>
                     </button>
                     
-                    <Button className="bg-white text-xs px-6 py-2 text-black border-2 border-pink-700 rounded-full hover:bg-pink-50">
+                    <Button className="bg-white text-xs px-6 py-2 text-black border border-pink-700 rounded-full hover:bg-pink-50">
                         <UsersRound size={16} />
                         Login
                     </Button>

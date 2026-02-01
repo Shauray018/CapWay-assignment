@@ -11,10 +11,9 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { searchQuery, selectedCategory, minPrice, maxPrice, inStockOnly } =
+  const { searchQuery, selectedCategory, minPrice, maxPrice, inStockOnly, sortBy } =
     useFilterStore();
 
-  // Debounce search query by 500ms
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   useEffect(() => {
@@ -29,7 +28,27 @@ export function useProducts() {
           maxPrice: maxPrice || undefined,
           inStock: inStockOnly || undefined,
         });
-        setProducts(data);
+
+        // Apply sorting on the client side
+        let sortedData = [...data];
+        if (sortBy) {
+          sortedData.sort((a, b) => {
+            switch (sortBy) {
+              case 'price-asc':
+                return a.salePrice - b.salePrice;
+              case 'price-desc':
+                return b.salePrice - a.salePrice;
+              case 'name-asc':
+                return a.name.localeCompare(b.name);
+              case 'name-desc':
+                return b.name.localeCompare(a.name);
+              default:
+                return 0;
+            }
+          });
+        }
+
+        setProducts(sortedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -38,7 +57,7 @@ export function useProducts() {
     };
 
     fetchProducts();
-  }, [debouncedSearchQuery, selectedCategory, minPrice, maxPrice, inStockOnly]);
+  }, [debouncedSearchQuery, selectedCategory, minPrice, maxPrice, inStockOnly, sortBy]);
 
   return { products, loading, error };
 }
